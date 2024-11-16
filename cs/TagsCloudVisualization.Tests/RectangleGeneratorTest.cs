@@ -2,6 +2,7 @@ using System.Drawing;
 using NUnit.Framework;
 using FluentAssertions;
 using TagsCloudVisualization.CloudLayouter;
+using TagsCloudVisualization.RectangleGenerator;
 
 namespace TagsCloudVisualizationTests;
 
@@ -9,28 +10,13 @@ namespace TagsCloudVisualizationTests;
 public class RectangleGeneratorTest
 {
     [Test]
-    public void GenerateRandomRectangles_CheckNumberRectangles_ReturnTrue()
+    public void GenerateRandomRectangles_CheckNumberRectangles_NumberRectanglesGeneratedMatchesRequested()
     {
         var center = new Point(0, 0);
         var layouter = new CircularCloudLayouter(center);
-        var rectangles = RectangleGenerator.GenerateRandomRectangles(layouter, 10).ToList();
+        var rectangles = RectangleGenerator.GenerateRandomRectangles(10).ToList();
+        layouter.PutRectangles(rectangles);
 
         rectangles.Count.Should().Be(10);
-    }
-    
-    [Test]
-    public void GenerateRandomRectangles_CheckIntersectRectangles_ReturnFalse()
-    {
-        var center = new Point(0, 0);
-        var layouter = new CircularCloudLayouter(center);
-        var rectangles = RectangleGenerator.GenerateRandomRectangles(layouter, 10).ToList();
-
-        for (var i = 0; i < rectangles.Count; i++)
-        {
-            for (var j = i + 1; j < rectangles.Count; j++)
-            {
-                rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse();
-            }
-        }
     }
 }

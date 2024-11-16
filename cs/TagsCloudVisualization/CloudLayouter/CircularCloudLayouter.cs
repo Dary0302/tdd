@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using TagsCloudVisualization.Extension;
 
 namespace TagsCloudVisualization.CloudLayouter;
 
@@ -9,6 +10,15 @@ public class CircularCloudLayouter(Point center) : ILayouter
 
     public Rectangle PutNextRectangle(Size sizeRectangle)
     {
+        var rectangle = FindNextValidRectanglePosition(sizeRectangle);
+        rectangle = MoveRectangleCloserCenter(rectangle);
+        Rectangles.Add(rectangle);
+
+        return rectangle;
+    }
+
+    private Rectangle FindNextValidRectanglePosition(Size sizeRectangle)
+    {
         if (sizeRectangle.Width <= 0 || sizeRectangle.Height <= 0)
             throw new ArgumentException("Width and height should be greater than zero.");
 
@@ -17,38 +27,46 @@ public class CircularCloudLayouter(Point center) : ILayouter
         while (true)
         {
             rectangle = new(spiral.GetNextPoint(), sizeRectangle);
-            if (rectangle.IsNotIntersectOthersRectangles(Rectangles))
+            if (!rectangle.IsIntersectOthersRectangles(Rectangles))
                 break;
         }
-        rectangle = MoveRectangleCloserCenter(rectangle);
-        Rectangles.Add(rectangle);
-
+        
         return rectangle;
     }
 
     private Rectangle MoveRectangleCloserCenter(Rectangle rectangle)
     {
-        var newRectangle = MoveRectangleAxis(rectangle, rectangle.GetCenter().X, center.X,
+        var newRectangle = MoveRectangleAxis(rectangle,
+            Math.Abs(rectangle.GetCenter().X - center.X),
             new(rectangle.GetCenter().X < center.X ? 1 : -1, 0));
-        newRectangle = MoveRectangleAxis(newRectangle, newRectangle.GetCenter().Y, center.Y,
+        newRectangle = MoveRectangleAxis(newRectangle,
+            Math.Abs(rectangle.GetCenter().Y - center.Y),
             new(0, rectangle.GetCenter().Y < center.Y ? 1 : -1));
-        
+
         return newRectangle;
+    }
+
+    public void PutRectangles(IEnumerable<Rectangle> rectangles)
+    {
+        foreach (var rectangle in rectangles)
+        {
+            PutNextRectangle(rectangle.Size);
+        }
     }
 
     private Rectangle MoveRectangleAxis(
         Rectangle newRectangle,
-        int currentPosition,
-        int desiredPosition,
+        int stepsToCenter,
         Point stepPoint)
     {
-        while (newRectangle.IsNotIntersectOthersRectangles(Rectangles) && desiredPosition != currentPosition)
+        var stepsTaken = 0;
+        while (!newRectangle.IsIntersectOthersRectangles(Rectangles) && stepsTaken != stepsToCenter)
         {
-            currentPosition += currentPosition < desiredPosition ? 1 : -1;
             newRectangle.Location = newRectangle.Location.Add(stepPoint);
+            stepsTaken++;
         }
 
-        if (!newRectangle.IsNotIntersectOthersRectangles(Rectangles))
+        if (newRectangle.IsIntersectOthersRectangles(Rectangles))
         {
             newRectangle.Location = newRectangle.Location.Subtract(stepPoint);
         }
