@@ -1,7 +1,9 @@
 using System.Drawing;
 using FluentAssertions;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using TagsCloudVisualization.CloudLayouter;
+using TagsCloudVisualization.Draw;
 using TagsCloudVisualization.Extension;
 using TagsCloudVisualization.RectangleGenerator;
 
@@ -10,14 +12,29 @@ namespace TagsCloudVisualizationTests;
 [TestFixture]
 public class CircularCloudLayouterTest
 {
-    private readonly Random random = new(1);
+    private List<Rectangle> rectanglesForCrashTest = new();
 
+    [TearDown]
+    public void TearDown()
+    {
+        if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
+        {
+            var drawer = new RectangleDraw(1500, 1500);
+            var filename = $"{TestContext.CurrentContext.WorkDirectory}CrashTest.png";
+            drawer.CreateImage(rectanglesForCrashTest, filename);
+                
+            Console.WriteLine($"Tag cloud visualization saved to file {filename}");
+        }
+    }
+    
     [Test]
     public void PutNextRectangle_ReturnsFirstRectangleThatIsInCenterOfCloud()
     {
         var center = new Point(1, 1);
         var layouter = new CircularCloudLayouter(center);
-        layouter.PutNextRectangle(new Size(1, 1)).Location.Should().Be(center);
+        var nextRectangle = layouter.PutNextRectangle(new Size(1, 1));
+        rectanglesForCrashTest.Add(nextRectangle);
+        nextRectangle.Location.Should().Be(center);
     }
 
     [TestCase(0, 0)]
@@ -39,10 +56,10 @@ public class CircularCloudLayouterTest
 
         for (var i = 0; i < count; i++)
         {
-            layouter?.PutNextRectangle(new Size(sizeX, sizeY));
+            rectanglesForCrashTest.Add(layouter.PutNextRectangle(new Size(sizeX, sizeY)));
         }
 
-        layouter?.Rectangles.Count.Should().Be(count);
+        layouter.Rectangles.Count.Should().Be(count);
     }
 
     [Test]
@@ -52,6 +69,7 @@ public class CircularCloudLayouterTest
         var layouter = new CircularCloudLayouter(center);
         var rectangles = RectangleGenerator.GenerateRandomRectangles(10).ToList();
         layouter.PutRectangles(rectangles);
+        rectanglesForCrashTest = layouter.Rectangles;
 
         for (var i = 0; i < rectangles.Count; i++)
         {
@@ -82,6 +100,7 @@ public class CircularCloudLayouterTest
                 isIntersectsWith += 1;
             }
             rectangles.Add(rectangle);
+            rectanglesForCrashTest.Add(rectangle);
         }
 
         isIntersectsWith.Should().Be(countRectangles);
@@ -111,6 +130,7 @@ public class CircularCloudLayouterTest
         var randomRectangles = RectangleGenerator.GenerateRandomRectangles(countRectangles);
         var layouter = new CircularCloudLayouter(center);
         layouter.PutRectangles(randomRectangles);
+        rectanglesForCrashTest = layouter.Rectangles;
 
         var distancesFromCenterToRectangles = GetDistancesFromCenterToRectangles(layouter.Rectangles, center);
         var averageDistanceFromCenterToRectangles = distancesFromCenterToRectangles.Average();
