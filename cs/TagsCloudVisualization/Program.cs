@@ -8,5 +8,5 @@ var randomRectangles = RectangleGenerator.GenerateRandomRectangles(1000);
 var layouter = new CircularCloudLayouter(center);
 layouter.PutRectangles(randomRectangles);
 var drawer = new RectangleDraw(1500, 1500);
-const string filename = "RandomRectangles1000.png";
+const string filename = "CloudRectangles1000.png";
 drawer.CreateImage(layouter.Rectangles, filename);
