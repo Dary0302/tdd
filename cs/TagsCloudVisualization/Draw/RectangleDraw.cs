@@ -7,7 +7,7 @@ public class RectangleDraw
 {
     private readonly Bitmap bitmap;
     private readonly Size shiftToBitmapCenter;
-    
+
     public RectangleDraw(int width, int height)
     {
         #pragma warning disable CA1416
@@ -15,6 +15,7 @@ public class RectangleDraw
         shiftToBitmapCenter = new Size(bitmap.Width / 2, bitmap.Height / 2);
         #pragma warning restore CA1416
     }
+
     public void CreateImage(IEnumerable<Rectangle> rectangles, string filename)
     {
         #pragma warning disable CA1416
@@ -23,7 +24,7 @@ public class RectangleDraw
             graphics.Clear(Color.White);
             foreach (var r in rectangles)
             {
-                var rectangle =  new Rectangle(r.Location + shiftToBitmapCenter, r.Size);
+                var rectangle = new Rectangle(r.Location + shiftToBitmapCenter, r.Size);
                 graphics.DrawRectangle(new Pen(Color.BlueViolet), rectangle);
             }
         }
