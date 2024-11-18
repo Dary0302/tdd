@@ -6,14 +6,15 @@ using TagsCloudVisualization.CloudLayouter;
 using TagsCloudVisualization.Draw;
 using TagsCloudVisualization.Extension;
 using TagsCloudVisualization.RectangleGenerator;
+using TagsCloudVisualization.Saver;
 
 namespace TagsCloudVisualizationTests;
 
 [TestFixture]
-public class CircularCloudLayouterTest
+public class CircularCloudLayouterTest()
 {
-    private List<Rectangle> rectanglesForCrashTest = new();
-
+    private IReadOnlyList<Rectangle> rectanglesForCrashTest;
+    
     [TearDown]
     public void TearDown()
     {
@@ -29,7 +30,7 @@ public class CircularCloudLayouterTest
     }
 
     [Test]
-    public void PutNextRectangle_ReturnsFirstRectangleThatIsInCenterOfCloud()
+    public void PutNextRectangle_PlaceFirstRectangleAtCenter()
     {
         var center = new Point(1, 1);
         var layouter = new CircularCloudLayouter(center);
@@ -69,7 +70,7 @@ public class CircularCloudLayouterTest
     [TestCase(50)]
     [TestCase(100)]
     [TestCase(1000)]
-    public void PutNextRectangle_CheckIntersectOfRectangles(int countRectangles)
+    public void PutNextRectangle_CreateLayoutWithoutIntersections(int countRectangles)
     {
         var center = new Point(0, 0);
         var layouter = new CircularCloudLayouter(center);
@@ -178,11 +179,28 @@ public class CircularCloudLayouterTest
 
     private static double GetMostDistantFromCenterToRectangles(IEnumerable<Rectangle> rectangles, Point center)
     {
-        var mostDistantCoordinateFromCenter = rectangles
-            .Select(r => Math.Max(Math.Abs(r.Location.X - center.X), Math.Abs(r.Location.Y - center.Y)))
+        var mostDistantToLeftTopRectangles = rectangles
+            .Select(r => Math.Max(Math.Abs(r.Location.X - center.X),
+                Math.Abs(r.Location.Y - center.Y)))
             .Max();
-        return Math.Sqrt(Math.Pow(mostDistantCoordinateFromCenter, 2) +
-            Math.Pow(mostDistantCoordinateFromCenter, 2));
+        var mostDistantToRightTopRectangles = rectangles
+            .Select(r => Math.Max(Math.Abs(r.Location.X + r.Width - center.X),
+                Math.Abs(r.Location.Y - center.Y)))
+            .Max();
+        var mostDistantToLeftBottomRectangles = rectangles
+            .Select(r => Math.Max(Math.Abs(r.Location.X - center.X),
+                Math.Abs(r.Location.Y - r.Height - center.Y)))
+            .Max();
+        var mostDistantToRightBottomRectangles = rectangles
+            .Select(r => Math.Max(Math.Abs(r.Location.X + r.Width - center.X),
+                Math.Abs(r.Location.Y - r.Height - center.Y)))
+            .Max();
+
+        var mostDistant = Max(mostDistantToLeftTopRectangles, mostDistantToRightTopRectangles,
+            mostDistantToLeftBottomRectangles, mostDistantToRightBottomRectangles);
+        
+        return Math.Sqrt(Math.Pow(mostDistant, 2) +
+            Math.Pow(mostDistant, 2));
     }
 
     private static double GetAreaOfCircle(double radius) => Math.PI * Math.Pow(radius, 2);

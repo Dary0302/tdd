@@ -1,10 +1,10 @@
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace TagsCloudVisualization.Draw;
 
 public class RectangleDraftsman
 {
+    public Bitmap Bitmap => new Bitmap(bitmap);
     private readonly Bitmap bitmap;
     private readonly Size shiftToBitmapCenter;
 
@@ -29,11 +29,5 @@ public class RectangleDraftsman
         #pragma warning restore CA1416
     }
     
-    public void SaveImageToFile(string filename)
-    {
-        #pragma warning disable CA1416
-        bitmap.Save(filename, ImageFormat.Png);
-        #pragma warning restore CA1416
-        Console.WriteLine($"Tag cloud visualization saved to: {Path.GetFullPath(filename)}");
-    }
+    
 }
