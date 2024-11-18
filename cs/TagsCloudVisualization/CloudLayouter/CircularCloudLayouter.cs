@@ -5,7 +5,7 @@ namespace TagsCloudVisualization.CloudLayouter;
 
 public class CircularCloudLayouter(Point center) : ILayouter
 {
-    public readonly List<Rectangle> Rectangles = new();
+    public List<Rectangle> Rectangles { get; } = new();
     private readonly Spiral spiral = new(center, 2);
 
     public Rectangle PutNextRectangle(Size sizeRectangle)
@@ -27,31 +27,31 @@ public class CircularCloudLayouter(Point center) : ILayouter
         while (true)
         {
             rectangle = new(spiral.GetNextPoint(), sizeRectangle);
-            if (!rectangle.IsIntersectOthersRectangles(Rectangles))
+            if (!rectangle.IntersectsWithAnyOf(Rectangles))
                 break;
         }
-        
+
         return rectangle;
     }
 
     private Rectangle MoveRectangleCloserCenter(Rectangle rectangle)
     {
+        var xStepsToCenter = Math.Abs(rectangle.GetCenter().X - center.X);
+        var xShiftDirection = rectangle.GetCenter().X < center.X ? 1 : -1;
+        var xShiftVector = new Point(xShiftDirection, 0);
+
+        var yStepsToCenter = Math.Abs(rectangle.GetCenter().Y - center.Y);
+        var yShiftDirection = rectangle.GetCenter().Y < center.Y ? 1 : -1;
+        var yShiftVector = new Point(0, yShiftDirection);
+
         var newRectangle = MoveRectangleAxis(rectangle,
-            Math.Abs(rectangle.GetCenter().X - center.X),
-            new(rectangle.GetCenter().X < center.X ? 1 : -1, 0));
+            xStepsToCenter,
+            xShiftVector);
         newRectangle = MoveRectangleAxis(newRectangle,
-            Math.Abs(rectangle.GetCenter().Y - center.Y),
-            new(0, rectangle.GetCenter().Y < center.Y ? 1 : -1));
+            yStepsToCenter,
+            yShiftVector);
 
         return newRectangle;
-    }
-
-    public void PutRectangles(IEnumerable<Rectangle> rectangles)
-    {
-        foreach (var rectangle in rectangles)
-        {
-            PutNextRectangle(rectangle.Size);
-        }
     }
 
     private Rectangle MoveRectangleAxis(
@@ -60,13 +60,13 @@ public class CircularCloudLayouter(Point center) : ILayouter
         Point stepPoint)
     {
         var stepsTaken = 0;
-        while (!newRectangle.IsIntersectOthersRectangles(Rectangles) && stepsTaken != stepsToCenter)
+        while (!newRectangle.IntersectsWithAnyOf(Rectangles) && stepsTaken != stepsToCenter)
         {
             newRectangle.Location = newRectangle.Location.Add(stepPoint);
             stepsTaken++;
         }
 
-        if (newRectangle.IsIntersectOthersRectangles(Rectangles))
+        if (newRectangle.IntersectsWithAnyOf(Rectangles))
         {
             newRectangle.Location = newRectangle.Location.Subtract(stepPoint);
         }
