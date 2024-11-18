@@ -2,9 +2,6 @@
 using FluentAssertions;
 using NUnit.Framework;
 using TagsCloudVisualization;
-using TagsCloudVisualization.CloudLayouter;
-using TagsCloudVisualization.Extension;
-using TagsCloudVisualization.RectangleGenerator;
 
 namespace TagsCloudVisualizationTests;
 

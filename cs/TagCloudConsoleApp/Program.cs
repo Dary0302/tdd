@@ -3,6 +3,7 @@ using TagsCloudVisualization.CloudLayouter;
 using TagsCloudVisualization.Draw;
 using TagsCloudVisualization.Extension;
 using TagsCloudVisualization.RectangleGenerator;
+using TagsCloudVisualization.Saver;
 
 var center = new Point(0, 0);
 var randomRectangles = RectangleGenerator.GenerateRandomRectangles(1000);

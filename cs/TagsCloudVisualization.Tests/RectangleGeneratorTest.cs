@@ -8,7 +8,7 @@ namespace TagsCloudVisualizationTests;
 public class RectangleGeneratorTest
 {
     [Test]
-    public void GenerateRandomRectangles_CheckNumberRectangles_NumberRectanglesGeneratedMatchesRequested()
+    public void GenerateRandomRectangles_ReturnGeneratedRectanglesNumberMatchesRequested()
     {
         var rectangles = RectangleGenerator.GenerateRandomRectangles(10).ToList();
 
