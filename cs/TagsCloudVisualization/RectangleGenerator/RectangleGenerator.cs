@@ -7,7 +7,7 @@ public static class RectangleGenerator
     public static IEnumerable<Rectangle> GenerateRandomRectangles(int countRectangles)
     {
         var rectangles = new List<Rectangle>(countRectangles);
-        var random = new Random(1);
+        var random = new Random();
         
         for (var i = 0; i < countRectangles; i++)
         {

@@ -1,11 +1,11 @@
 ## Облако из 50 прямоугольников:
 
-![First](RandomRectangles50.png)
+![First](CloudRectangles50.png)
 
 ## Облако из 300 прямоугольников:
 
-![Second](RandomRectangles300.png)
+![Second](CloudRectangles300.png)
 
 ## Облако из 1000 прямоугольников:
 
-![Third](RandomRectangles1000.png)
+![Third](CloudRectangles1000.png)

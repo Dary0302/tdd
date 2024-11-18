@@ -4,17 +4,18 @@ using NUnit.Framework;
 using FluentAssertions;
 using TagsCloudVisualization.CloudLayouter;
 using TagsCloudVisualization.Draw;
+using TagsCloudVisualization.Extension;
 using TagsCloudVisualization.RectangleGenerator;
 
 namespace TagsCloudVisualizationTests;
 
 [TestFixture]
-public class RectangleDrawTest
+public class RectangleDraftsmanTest
 {
     private Point center;
     private CircularCloudLayouter layouter;
     private IEnumerable<Rectangle> rectangles;
-    private RectangleDraw rectangleDraw;
+    private RectangleDraftsman drawer;
 
     [SetUp]
     public void SetUp()
@@ -23,13 +24,14 @@ public class RectangleDrawTest
         layouter = new CircularCloudLayouter(center);
         rectangles = RectangleGenerator.GenerateRandomRectangles(10);
         layouter.PutRectangles(rectangles);
-        rectangleDraw = new RectangleDraw(1500, 1500);
+        drawer = new RectangleDraftsman(1500, 1500);
     }
 
     [TestCase(null)]
     public void CreateImage_OnInvalidParameters_ThrowsArgumentException(string filename)
     {
-        var action = () => rectangleDraw.CreateImage(layouter.Rectangles, filename);
+        drawer.CreateImage(layouter.Rectangles);
+        var action = () => drawer.SaveImageToFile(filename);
         action.Should().Throw<ArgumentException>();
     }
 
@@ -37,7 +39,8 @@ public class RectangleDrawTest
     [TestCase("@#$\\")]
     public void CreateImage_OnInvalidParameters_ThrowsDirectoryNotFoundException(string filename)
     {
-        var action = () => rectangleDraw.CreateImage(layouter.Rectangles, filename);
+        drawer.CreateImage(layouter.Rectangles);
+        var action = () => drawer.SaveImageToFile(filename);
         action.Should().Throw<DirectoryNotFoundException>();
     }
 
@@ -49,14 +52,15 @@ public class RectangleDrawTest
     [TestCase("")]
     public void CreateImage_OnInvalidParameters_ThrowsExternalException(string filename)
     {
-        var action = () => rectangleDraw.CreateImage(layouter.Rectangles, filename);
+        drawer.CreateImage(layouter.Rectangles);
+        var action = () => drawer.SaveImageToFile(filename);
         action.Should().Throw<ExternalException>();
     }
 
     [Test]
     public void CreateImage_WhenListOfRectanglesIsNull_ThrowsArgumentException()
     {
-        var action = () => rectangleDraw.CreateImage(null, "test");
+        var action = () => drawer.CreateImage(null);
         action.Should().Throw<NullReferenceException>();
     }
 
@@ -66,7 +70,7 @@ public class RectangleDrawTest
     [TestCase(0, 1)]
     public void Constructor_OnInvalidArguments_ThrowsArgumentException(int width, int height)
     {
-        Action action = () => new RectangleDraw(width, height);
+        Action action = () => new RectangleDraftsman(width, height);
         action.Should().Throw<ArgumentException>();
     }
 }
